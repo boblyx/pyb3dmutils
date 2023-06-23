@@ -22,11 +22,11 @@ def convertFile(filePath, outPath=None):
     if (not input.suffix == ".b3dm"):
         return 0
     filename = pathlib.Path(filePath).name
+    if(outPath == None):
+        outPath = folder
     input_copy = os.path.join(outPath, filename + ".glb")
     shutil.copyfile(input, input_copy)
     header_glTF = b"glTF"
-    if(outPath == None):
-        outPath = folder
     # Truncate the b3dm header up until the start of the glTF header
     with open(input_copy, "r+") as f:
         with mmap.mmap(f.fileno(), 0, access = mmap.ACCESS_WRITE) as m:
