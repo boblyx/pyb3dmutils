@@ -3,7 +3,14 @@ A bunch (currently only one) of handy script utilities relating to b3dm.
 
 ## Features
 - Individual & batch conversion of .b3dm into glTF 2.0 format.
+- Output associated .glb, .bin and .json files (.json files contain the b3dm header under the "data" property)
 
+## Installation
+```bash
+git clone https://github.com/boblyx/pyb3dmutils.git
+cd pyb3dmutils
+pip install -r requirements.txt
+```
 ## Usage
 ### Convert a .b3dm file into a .glTF file to a specific folder
 ```bash

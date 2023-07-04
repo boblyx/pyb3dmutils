@@ -8,6 +8,7 @@ import mmap
 import shutil
 import pathlib
 import argparse
+import json
 from pygltflib import GLTF2
 
 def convertFile(filePath, outPath=None):
@@ -25,21 +26,38 @@ def convertFile(filePath, outPath=None):
     if(outPath == None):
         outPath = folder
     input_copy = os.path.join(outPath, filename + ".glb")
+    header_file = os.path.join(outPath, filename + ".json")
     shutil.copyfile(input, input_copy)
     header_glTF = b"glTF"
     # Truncate the b3dm header up until the start of the glTF header
     with open(input_copy, "r+") as f:
         with mmap.mmap(f.fileno(), 0, access = mmap.ACCESS_WRITE) as m:
             m.seek(0)
+            # find the first bracket
+            bLocStart = m.find(b"{")
             gLoc = m.find(header_glTF)
+            bLocEnd = gLoc
             orig_file = m.read()
+            header_txt = orig_file[bLocStart:bLocEnd]
             new_file = orig_file[int(gLoc):]
             m.resize(len(new_file))
             m[:] = new_file
             m.flush()
             pass
         pass
+    # Save b3dm header data into a .json file
+    with open(header_file, "wb") as f:
+        f.write(b'{"data":[')
+        f.write(header_txt.replace(b'}',b'},',1))
+        f.write(b"]}")
+        pass
+    # Write b3dm header into the _extra attribute in the mesh primitive
+    extra_data = {}
+    with open(header_file, "r") as f:
+        extra_data = json.load(f)
+        pass
     glb = GLTF2().load(input_copy)
+    #glb.meshes[0].extras = "test"
     outputFilePath = os.path.join(outPath,filename + ".gltf")
     glb.save(outputFilePath)
     print("Successfully saved to %s" % outputFilePath)
